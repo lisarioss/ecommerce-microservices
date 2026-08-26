@@ -1,42 +1,33 @@
 package com.ecommerce.order;
 
 import com.ecommerce.order.domain.Order;
-import com.ecommerce.order.repository.OrderRepository;
+import com.ecommerce.order.domain.OrderItem;
+import com.ecommerce.order.domain.OrderStatus;
+import com.ecommerce.order.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Testcontainers
 class OrderServiceIntegrationTest {
 
-    @Container
-    static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
-
-    @DynamicPropertySource
-    static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
-    }
-
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderService orderService;
 
     @Test
-    void shouldSaveOrderToMongoContainer() {
-        Order order = new Order(null, "usr_123", List.of(), new BigDecimal("299.90"), Order.OrderStatus.PENDING, null);
-        Order saved = orderRepository.save(order);
+    void shouldCreateOrderSuccessfully() {
+        OrderItem item = new OrderItem("prod_1", 2, new BigDecimal("50.00"));
+        Order order = new Order(null, "cust_123", List.of(item), new BigDecimal("100.00"), OrderStatus.PENDING, null);
 
-        assertThat(saved.id()).isNotNull();
-        assertThat(saved.totalAmount()).isEqualTo(new BigDecimal("299.90"));
+        Order createdOrder = orderService.createOrder(order);
+
+        assertNotNull(createdOrder.getId());
+        assertEquals(new BigDecimal("100.00"), createdOrder.getTotalAmount());
+        assertEquals(OrderStatus.PENDING, createdOrder.getStatus());
     }
 }

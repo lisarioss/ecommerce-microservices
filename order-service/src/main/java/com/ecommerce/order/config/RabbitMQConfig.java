@@ -1,4 +1,4 @@
-package com.ecommerce.payment.config;
+package com.ecommerce.order.config;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
