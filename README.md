@@ -102,7 +102,7 @@ O `docker-compose.yml` já orquestra o MongoDB, o RabbitMQ e os dois serviços, 
 
 ```bash
 # build dos artefatos Java (necessário antes do build das imagens)
-./mvnw clean package -DskipTests
+mvn clean package -DskipTests
 
 # sobe toda a stack
 docker compose up --build
@@ -119,11 +119,11 @@ Serviços disponíveis após o start:
 
 ```bash
 # a partir da raiz do projeto
-./mvnw clean install
+mvn clean install
 
 # em terminais separados
-cd order-service && ./mvnw spring-boot:run
-cd payment-service && ./mvnw spring-boot:run
+cd order-service && mvn spring-boot:run
+cd payment-service && mvn spring-boot:run
 ```
 
 Nesse modo, é necessário ter uma instância de MongoDB e RabbitMQ rodando localmente (ou expostas via Docker) e ajustar as variáveis de ambiente conforme a seção abaixo.
@@ -171,7 +171,7 @@ O `order-service` conta com testes de integração usando **Testcontainers**, su
 
 ```bash
 cd order-service
-./mvnw test
+mvn test
 ```
 
 ## Variáveis de ambiente
@@ -187,8 +187,6 @@ cd order-service
 
 Próximos passos planejados para evoluir o protótipo:
 
-- [ ] Padronizar os nomes das filas e o payload trafegado entre `order-service` e `payment-service` (hoje há dessincronia entre o nome das filas configuradas em cada serviço)
-- [ ] Trafegar o evento completo (`OrderCreatedEvent`) em vez de apenas o ID do pedido na fila de criação
 - [ ] Adicionar Dead Letter Queue (DLQ) e retry policy para mensagens com falha de processamento
 - [ ] Adicionar idempotência no processamento de eventos (evitar duplicidade em caso de reentrega)
 - [ ] Expor endpoint de listagem de pedidos com paginação

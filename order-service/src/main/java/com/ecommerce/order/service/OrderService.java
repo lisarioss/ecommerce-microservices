@@ -1,6 +1,8 @@
 package com.ecommerce.order.service;
 
+import com.ecommerce.order.config.RabbitMQConfig;
 import com.ecommerce.order.domain.Order;
+import com.ecommerce.order.dto.OrderCreatedEvent;
 import com.ecommerce.order.dto.OrderRequest;
 import com.ecommerce.order.repository.OrderRepository;
 import java.math.BigDecimal;
@@ -34,7 +36,13 @@ public class OrderService {
         );
 
         Order savedOrder = orderRepository.save(newOrder);
-        rabbitTemplate.convertAndSend("", "order-created", savedOrder.getId());
+
+        OrderCreatedEvent event = new OrderCreatedEvent(
+            savedOrder.getId(),
+            savedOrder.getCustomerId(),
+            savedOrder.getTotalAmount()
+        );
+        rabbitTemplate.convertAndSend(RabbitMQConfig.ORDER_CREATED_QUEUE, event);
 
         return savedOrder;
     }
