@@ -2,7 +2,7 @@ package com.ecommerce.order;
 
 import com.ecommerce.order.domain.Order;
 import com.ecommerce.order.domain.OrderItem;
-import com.ecommerce.order.domain.OrderStatus;
+import com.ecommerce.order.dto.OrderRequest;
 import com.ecommerce.order.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,19 @@ class OrderServiceIntegrationTest {
 
     @Test
     void shouldCreateOrderSuccessfully() {
-        OrderItem item = new OrderItem("prod_1", 2, new BigDecimal("50.00"));
-        Order order = new Order(null, "cust_123", List.of(item), new BigDecimal("100.00"), OrderStatus.PENDING, null);
+        // 1. Instancia o item da requisição
+        OrderItem item = new OrderItem("prod-001", 2, new BigDecimal("49.90"));
 
-        Order createdOrder = orderService.createOrder(order);
+        // 2. Cria o DTO OrderRequest esperado pelo OrderService
+        OrderRequest request = new OrderRequest("user-123", List.of(item));
 
+        // 3. Executa a criação do pedido
+        Order createdOrder = orderService.createOrder(request);
+
+        // 4. Valida os resultados
         assertNotNull(createdOrder.getId());
-        assertEquals(new BigDecimal("100.00"), createdOrder.getTotalAmount());
-        assertEquals(OrderStatus.PENDING, createdOrder.getStatus());
+        assertEquals("user-123", createdOrder.getCustomerId());
+        assertEquals("CREATED", createdOrder.getStatus());
+        assertEquals(new BigDecimal("99.80"), createdOrder.getTotalAmount());
     }
 }

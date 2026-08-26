@@ -4,9 +4,9 @@ server:
 spring:
   data:
     mongodb:
-      uri: mongodb://localhost:27017/order_db
+      uri: mongodb://mongodb:27017/ordersdb
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: guest
     password: guest
