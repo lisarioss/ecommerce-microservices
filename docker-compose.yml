@@ -1,4 +1,14 @@
+version: '3.8'
+
 services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=ordersdb
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -7,18 +17,7 @@ services:
       - "15672:15672"
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  mongodb:
-    image: mongo:7.0
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
 
@@ -27,19 +26,22 @@ services:
     container_name: order-service
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/ordersdb
     depends_on:
       rabbitmq:
         condition: service_healthy
       mongodb:
-        condition: service_healthy
+        condition: service_started
 
   payment-service:
     build: ./payment-service
     container_name: payment-service
     ports:
       - "8081:8081"
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
     depends_on:
       rabbitmq:
-        condition: service_healthy
-      mongodb:
         condition: service_healthy
